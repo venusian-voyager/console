@@ -1,5 +1,5 @@
 {
-    "name": "voyager/console",
+    "name": "venusian-voyager/console",
     "description": "The Voyager Console package.",
     "license": "MIT",
     "authors": [
@@ -14,10 +14,10 @@
     "require": {
         "php": "^8.4|^8.5",
         "ext-mbstring": "*",
-        "voyager/collections": "^0.8.0",
-        "voyager/contracts": "^0.8.0",
-        "voyager/macroable": "^0.8.0",
-        "voyager/nuts-and-bolts": "^0.8.0",
+        "venusian-voyager/collections": "^0.8.0",
+        "venusian-voyager/contracts": "^0.8.0",
+        "venusian-voyager/macroable": "^0.8.0",
+        "venusian-voyager/nuts-and-bolts": "^0.8.0",
         "laravel/prompts": "^0.3.0",
         "nunomaduro/termwind": "^2.0",
         "symfony/console": "^7.2.0",
