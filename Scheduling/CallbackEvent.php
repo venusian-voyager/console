@@ -3,7 +3,7 @@
 namespace Voyager\Console\Scheduling;
 
 use Voyager\Contracts\Vessel\Vessel;
-use Voyager\Reflection\Reflector;
+use Voyager\NutsAndBolts\Reflector;
 use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
