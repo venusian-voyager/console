@@ -2,7 +2,7 @@
 
 namespace Voyager\Console\Scheduling;
 
-use Voyager\Reflection\Reflector;
+use Voyager\NutsAndBolts\Reflector;
 
 trait ManagesAttributes
 {
