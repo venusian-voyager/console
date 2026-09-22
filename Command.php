@@ -2,14 +2,17 @@
 
 namespace Voyager\Console;
 
-use Voyager\Console\View\Components\Factory;
+use Override;
+use Throwable;
+use Voyager\Contracts\Core\FrameworkCore;
 use Voyager\Contracts\Console\Isolatable;
 use Voyager\NutsAndBolts\Concerns\Macroable;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
-use Symfony\Component\Console\Input\InputInterface;
+use Voyager\Console\View\Components\Factory;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Throwable;
+use Symfony\Component\Console\Exception\ExceptionInterface;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 class Command extends SymfonyCommand
 {
@@ -22,25 +25,21 @@ class Command extends SymfonyCommand
         Macroable;
 
     /**
-     * The Venusian application instance.
-     *
-     * @var \Voyager\Contracts\System\Application
+     * The Venusian application instance. Set when the command runs.
      */
-    // Deliberately untyped: callers pass a Vessel, a System\Application,
-    // or (in tests) a mocked Console\Application. No single type covers them.
-    protected $venusian;
+    protected FrameworkCore $venusian;
 
     /**
      * The name and signature of the console command.
      *
-     * @var string
+     * @var string|null
      */
     protected ?string $signature = null;
 
     /**
      * The console command name.
      *
-     * @var string
+     * @var string|null
      */
     protected ?string $name = null;
 
@@ -77,7 +76,7 @@ class Command extends SymfonyCommand
      *
      * @var self::SUCCESS|self::FAILURE|self::INVALID
      */
-    protected $isolatedExitCode = self::SUCCESS;
+    protected int $isolatedExitCode = self::SUCCESS;
 
     /**
      * The console command name aliases.
@@ -163,11 +162,12 @@ class Command extends SymfonyCommand
     /**
      * Run the console command.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @param InputInterface $input
+     * @param OutputInterface $output
      * @return int
+     * @throws ExceptionInterface
      */
-    #[\Override]
+    #[Override]
     public function run(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output instanceof OutputStyle ? $output : $this->venusian->make(
@@ -190,8 +190,9 @@ class Command extends SymfonyCommand
     /**
      * Execute the console command.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
      */
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -225,11 +226,11 @@ class Command extends SymfonyCommand
     /**
      * Get a command isolation mutex instance for the command.
      *
-     * @return \Voyager\Console\CommandMutex
+     * @return CommandMutex
      */
     protected function commandIsolationMutex(): CommandMutex
     {
-        return $this->venusian->bound(CommandMutex::class)
+        return $this->venusian->isBound(CommandMutex::class)
             ? $this->venusian->make(CommandMutex::class)
             : $this->venusian->make(CacheCommandMutex::class);
     }
@@ -237,8 +238,8 @@ class Command extends SymfonyCommand
     /**
      * Resolve the console command instance for the given command.
      *
-     * @param  \Symfony\Component\Console\Command\Command|string  $command
-     * @return \Symfony\Component\Console\Command\Command
+     * @param SymfonyCommand|string  $command
+     * @return SymfonyCommand
      */
     protected function resolveCommand($command): SymfonyCommand
     {
@@ -264,10 +265,10 @@ class Command extends SymfonyCommand
     /**
      * Fail the command manually.
      *
-     * @param  \Throwable|string|null  $exception
+     * @param  Throwable|string|null  $exception
      * @return never
      *
-     * @throws \Voyager\Console\ManuallyFailedException|\Throwable
+     * @throws ManuallyFailedException|Throwable
      */
     public function fail(Throwable|string|null $exception = null): never
     {
@@ -287,7 +288,7 @@ class Command extends SymfonyCommand
      *
      * @return bool
      */
-    #[\Override]
+    #[Override]
     public function isHidden(): bool
     {
         return $this->hidden;
@@ -296,7 +297,7 @@ class Command extends SymfonyCommand
     /**
      * {@inheritdoc}
      */
-    #[\Override]
+    #[Override]
     public function setHidden(bool $hidden = true): static
     {
         parent::setHidden($this->hidden = $hidden);
@@ -307,11 +308,11 @@ class Command extends SymfonyCommand
     /**
      * Get the Venusian application instance.
      *
-     * @return \Voyager\Contracts\System\Application
+     * @return FrameworkCore
      */
     // Untyped: mirrors $venusian, which callers set to a Vessel,
     // a System\Application, or a mocked Console\Application.
-    public function getVenusian()
+    public function getVenusian(): FrameworkCore
     {
         return $this->venusian;
     }
@@ -319,10 +320,10 @@ class Command extends SymfonyCommand
     /**
      * Set the Venusian application instance.
      *
-     * @param  \Voyager\Contracts\Vessel\Vessel  $venusian
+     * @param FrameworkCore $venusian
      * @return void
      */
-    public function setVenusian($venusian): void
+    public function setVenusian(FrameworkCore $venusian): void
     {
         $this->venusian = $venusian;
     }

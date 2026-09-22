@@ -6,21 +6,10 @@ use Symfony\Component\Console\Question\Question;
 
 class Ask extends Component
 {
-    /**
-     * Renders the component using the given arguments.
-     *
-     * @param  string  $question
-     * @param  string|null  $default
-     * @param  bool  $multiline
-     * @return mixed
-     */
-    public function render($question, $default = null, $multiline = false): mixed
+    public function render(string $question, ?string $default = null, bool $multiline = false): mixed
     {
-        return $this->usingQuestionHelper(
-            fn () => $this->output->askQuestion(
-                (new Question($question, $default))
-                    ->setMultiline($multiline)
-            )
+        return $this->output->askQuestion(
+            new Question($question, $default)->setMultiline($multiline)
         );
     }
 }

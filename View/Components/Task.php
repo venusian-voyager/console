@@ -2,65 +2,38 @@
 
 namespace Voyager\Console\View\Components;
 
-use Voyager\Console\View\TaskResult;
-use Voyager\NutsAndBolts\Concerns\InteractsWithTime;
-use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
+use Symfony\Component\Console\Output\OutputInterface;
 
-use function Termwind\terminal;
-
+/**
+ * Run a piece of work and report how it went on one line.
+ */
 class Task extends Component
 {
-    use InteractsWithTime;
+    public function render(string $description, ?callable $task = null, int $verbosity = OutputInterface::VERBOSITY_NORMAL): void
+    {
+        try {
+            $succeeded = is_null($task) || $task() !== false;
+        } catch (Throwable $e) {
+            // the line still has to be drawn before the throwable leaves
+            $this->outcome($description, false, $verbosity);
+
+            throw $e;
+        }
+
+        $this->outcome($description, $succeeded, $verbosity);
+    }
 
     /**
-     * Renders the component using the given arguments.
-     *
-     * @param  string  $description
-     * @param  (callable(): bool)|null  $task
-     * @param  int  $verbosity
-     * @return void
+     * A two-column line whose right side is ours, not the caller's, so it carries colour.
      */
-    public function render($description, $task = null, $verbosity = OutputInterface::VERBOSITY_NORMAL)
+    private function outcome(string $description, bool $succeeded, int $verbosity): void
     {
-        $description = $this->mutate($description, [
-            Mutators\EnsureDynamicContentIsHighlighted::class,
-            Mutators\EnsureNoPunctuation::class,
-            Mutators\EnsureRelativePaths::class,
-        ]);
-
-        $descriptionWidth = mb_strlen(preg_replace("/\<[\w=#\/\;,:.&,%?]+\>|\\e\[\d+m/", '$1', $description) ?? '');
-
-        $this->output->write("  $description ", false, $verbosity);
-
-        $startTime = microtime(true);
-
-        $result = TaskResult::Failure->value;
-
-        try {
-            $result = ($task ?: fn () => TaskResult::Success->value)();
-        } catch (Throwable $e) {
-            throw $e;
-        } finally {
-            $runTime = $task
-                ? (' '.$this->runTimeForHumans($startTime))
-                : '';
-
-            $runTimeWidth = mb_strlen($runTime);
-            $width = min(terminal()->width(), 150);
-            $dots = max($width - $descriptionWidth - $runTimeWidth - 10, 0);
-
-            $this->output->write(str_repeat('<fg=gray>.</>', $dots), false, $verbosity);
-            $this->output->write("<fg=gray>$runTime</>", false, $verbosity);
-
-            $this->output->writeln(
-                match ($result) {
-                    TaskResult::Failure->value => ' <fg=red;options=bold>FAIL</>',
-                    TaskResult::Skipped->value => ' <fg=yellow;options=bold>SKIPPED</>',
-                    default => ' <fg=green;options=bold>DONE</>'
-                },
-                $verbosity,
-            );
-        }
+        $this->draw(sprintf(
+            '<div class="flex mx-2 max-w-150"><span>%s</span><span class="flex-1 content-repeat-[.] text-gray mx-1"></span><span class="font-bold text-%s">%s</span></div>',
+            $this->escape($description),
+            $succeeded ? 'green' : 'red',
+            $succeeded ? 'DONE' : 'FAIL',
+        ), $verbosity);
     }
 }

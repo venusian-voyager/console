@@ -2,19 +2,14 @@
 
 namespace Voyager\Console\View\Components;
 
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+
 class Confirm extends Component
 {
-    /**
-     * Renders the component using the given arguments.
-     *
-     * @param  string  $question
-     * @param  bool  $default
-     * @return bool
-     */
-    public function render($question, $default = false): bool
+    public function render(string $question, bool $default = false): bool
     {
-        return $this->usingQuestionHelper(
-            fn () => $this->output->confirm($question, $default),
+        return (bool) $this->output->askQuestion(
+            new ConfirmationQuestion($question, $default)
         );
     }
 }

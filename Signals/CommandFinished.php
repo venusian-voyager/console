@@ -1,11 +1,12 @@
 <?php
 
-namespace Voyager\Console\Events;
+namespace Voyager\Console\Signals;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Voyager\Contracts\Signals\Signal;
 
-class CommandStarting
+class CommandFinished implements Signal
 {
     /**
      * Create a new event instance.
@@ -13,11 +14,13 @@ class CommandStarting
      * @param  string  $command  The command name.
      * @param  \Symfony\Component\Console\Input\InputInterface  $input  The console input implementation.
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output  The command output implementation.
+     * @param  int  $exitCode  The command exit code.
      */
     public function __construct(
         public string $command,
         public InputInterface $input,
         public OutputInterface $output,
+        public int $exitCode,
     ) {
     }
 }

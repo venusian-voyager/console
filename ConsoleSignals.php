@@ -2,55 +2,54 @@
 
 namespace Voyager\Console;
 
-/**
- * @internal
- */
-class Signals
+use Symfony\Component\Console\SignalRegistry\SignalRegistry;
+
+class ConsoleSignals
 {
     /**
      * The signal registry instance.
      *
-     * @var \Symfony\Component\Console\SignalRegistry\SignalRegistry
+     * @var SignalRegistry
      */
     // Untyped: tests inject a fake registry that does not extend Symfony's.
-    protected $registry;
+    protected SignalRegistry $registry;
 
     /**
      * The signal registry's previous list of handlers.
      *
      * @var array<int, array<int, callable(int): void>>|null
      */
-    protected $previousHandlers;
+    protected ?array $previous_handlers;
 
     /**
      * The current availability resolver, if any.
      *
      * @var (callable(): bool)|null
      */
-    protected static $availabilityResolver;
+    protected static $availability_resolver;
 
     /**
      * Create a new signal registrar instance.
      *
-     * @param  \Symfony\Component\Console\SignalRegistry\SignalRegistry  $registry
+     * @param SignalRegistry $registry
      */
-    public function __construct($registry)
+    public function __construct(SignalRegistry $registry)
     {
         $this->registry = $registry;
 
-        $this->previousHandlers = $this->getHandlers();
+        $this->previous_handlers = $this->getHandlers();
     }
 
     /**
      * Register a new signal handler.
      *
-     * @param  int  $signal
-     * @param  callable(int $signal): void  $callback
+     * @param int $signal
+     * @param callable(int $signal): void $callback
      * @return void
      */
-    public function register($signal, $callback): void
+    public function register(int $signal, callable $callback): void
     {
-        $this->previousHandlers[$signal] ??= $this->initializeSignal($signal);
+        $this->previous_handlers[$signal] ??= $this->initializeSignal($signal);
 
         $handlers = $this->getHandlers();
 
@@ -74,7 +73,7 @@ class Signals
      *
      * @return array<int, callable(int $signal): void>|null
      */
-    protected function initializeSignal($signal)
+    protected function initializeSignal($signal): ?array
     {
         return is_callable($existingHandler = pcntl_signal_get_handler($signal))
             ? [$existingHandler]
@@ -88,28 +87,28 @@ class Signals
      */
     public function unregister(): void
     {
-        $previousHandlers = $this->previousHandlers;
+        $previous_handlers = $this->previous_handlers;
 
-        foreach ($previousHandlers as $signal => $handler) {
+        foreach ($previous_handlers as $signal => $handler) {
             if (is_null($handler)) {
                 pcntl_signal($signal, SIG_DFL);
 
-                unset($previousHandlers[$signal]);
+                unset($previous_handlers[$signal]);
             }
         }
 
-        $this->setHandlers($previousHandlers);
+        $this->setHandlers($previous_handlers);
     }
 
     /**
      * Execute the given callback if "signals" should be used and are available.
      *
-     * @param  callable  $callback
+     * @param callable $callback
      * @return void
      */
-    public static function whenAvailable($callback): void
+    public static function whenAvailable(callable $callback): void
     {
-        $resolver = static::$availabilityResolver;
+        $resolver = static::$availability_resolver;
 
         if ($resolver()) {
             $callback();
@@ -121,7 +120,7 @@ class Signals
      *
      * @return array<int, array<int, callable>>
      */
-    protected function getHandlers()
+    protected function getHandlers(): array
     {
         return (fn () => $this->signalHandlers)
             ->call($this->registry);
@@ -130,23 +129,23 @@ class Signals
     /**
      * Set the registry's handlers.
      *
-     * @param  array<int, array<int, callable(int $signal):void>>  $handlers
+     * @param array<int, array<int, callable(int $signal):void>> $handlers
      * @return void
      */
-    protected function setHandlers($handlers): void
+    protected function setHandlers(array $handlers): void
     {
-        (fn () => $this->signalHandlers = $handlers)
+        (fn () => $this->signal_handlers = $handlers)
             ->call($this->registry);
     }
 
     /**
      * Set the availability resolver.
      *
-     * @param  (callable(): bool)  $resolver
+     * @param (callable(): bool) $resolver
      * @return void
      */
-    public static function resolveAvailabilityUsing($resolver): void
+    public static function resolveAvailabilityUsing(callable $resolver): void
     {
-        static::$availabilityResolver = $resolver;
+        static::$availability_resolver = $resolver;
     }
 }

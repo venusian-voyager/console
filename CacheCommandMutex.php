@@ -3,9 +3,9 @@
 namespace Voyager\Console;
 
 use Carbon\CarbonInterval;
-use Voyager\Cache\DynamoDbStore;
-use Voyager\Contracts\Cache\Factory as Cache;
 use Voyager\Contracts\Cache\LockProvider;
+use Voyager\Contracts\Cache\Factory as Cache;
+use Voyager\Contracts\Cache\Store;
 use Voyager\NutsAndBolts\Concerns\InteractsWithTime;
 
 class CacheCommandMutex implements CommandMutex
@@ -39,10 +39,10 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Attempt to obtain a command mutex for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function create($command): bool
+    public function create(Command $command): bool
     {
         $store = $this->cache->store($this->store);
 
@@ -63,10 +63,10 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Determine if a command mutex exists for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function exists($command): bool
+    public function exists(Command $command): bool
     {
         $store = $this->cache->store($this->store);
 
@@ -86,10 +86,10 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Release the mutex for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function forget($command): bool
+    public function forget(Command $command): bool
     {
         $store = $this->cache->store($this->store);
 
@@ -103,10 +103,10 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Get the isolatable command mutex name.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return string
      */
-    protected function commandMutexName($command): string
+    protected function commandMutexName(Command $command): string
     {
         $baseName = 'framework'.DIRECTORY_SEPARATOR.'command-'.$command->getName();
 
@@ -118,10 +118,10 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Specify the cache store that should be used.
      *
-     * @param  string|null  $store
+     * @param string|null $store
      * @return $this
      */
-    public function useStore($store): static
+    public function useStore(?string $store): static
     {
         $this->store = $store;
 
@@ -131,11 +131,11 @@ class CacheCommandMutex implements CommandMutex
     /**
      * Determine if the given store should use locks for command mutexes.
      *
-     * @param  \Voyager\Contracts\Cache\Store  $store
+     * @param Store $store
      * @return bool
      */
-    protected function shouldUseLocks($store): bool
+    protected function shouldUseLocks(Store $store): bool
     {
-        return $store instanceof LockProvider && ! $store instanceof DynamoDbStore;
+        return $store instanceof LockProvider;
     }
 }
