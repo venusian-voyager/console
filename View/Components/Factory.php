@@ -2,10 +2,12 @@
 
 namespace Voyager\Console\View\Components;
 
+
 use InvalidArgumentException;
+use Throwable;
+use Voyager\Console\OutputStyle;
 
 /**
- * @method void alert(string $string, int $verbosity = \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL)
  * @method mixed ask(string $question, string $default = null, bool $multiline = false)
  * @method mixed askWithCompletion(string $question, array|callable $choices, string $default = null)
  * @method void bulletList(array $elements, int $verbosity = \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL)
@@ -25,16 +27,16 @@ class Factory
     /**
      * The output interface implementation.
      *
-     * @var \Voyager\Console\OutputStyle
+     * @var OutputStyle
      */
-    protected \Voyager\Console\OutputStyle $output;
+    protected OutputStyle $output;
 
     /**
      * Creates a new factory instance.
      *
-     * @param  \Voyager\Console\OutputStyle  $output
+     * @param OutputStyle $output
      */
-    public function __construct($output)
+    public function __construct(OutputStyle $output)
     {
         $this->output = $output;
     }
@@ -42,13 +44,14 @@ class Factory
     /**
      * Dynamically handle calls into the component instance.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @throws Throwable
      */
-    public function __call($method, $parameters): mixed
+    public function __call(string $method, array $parameters): mixed
     {
         $component = '\Voyager\Console\View\Components\\'.ucfirst($method);
 
@@ -56,6 +59,6 @@ class Factory
             'Console component [%s] not found.', $method
         )));
 
-        return (new $component($this->output))->render(...$parameters);
+        return new $component($this->output)->render(...$parameters);
     }
 }

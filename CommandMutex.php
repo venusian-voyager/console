@@ -7,24 +7,24 @@ interface CommandMutex
     /**
      * Attempt to obtain a command mutex for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function create($command): bool;
+    public function create(Command $command): bool;
 
     /**
      * Determine if a command mutex exists for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function exists($command): bool;
+    public function exists(Command $command): bool;
 
     /**
      * Release the mutex for the given command.
      *
-     * @param  \Voyager\Console\Command  $command
+     * @param \Voyager\Console\Command $command
      * @return bool
      */
-    public function forget($command): bool;
+    public function forget(Command $command): bool;
 }

@@ -14,15 +14,14 @@
     "require": {
         "php": "^8.4|^8.5",
         "ext-mbstring": "*",
-        "venusian-voyager/collections": "^0.8.0",
-        "venusian-voyager/contracts": "^0.8.0",
-        "venusian-voyager/macroable": "^0.8.0",
-        "venusian-voyager/nuts-and-bolts": "^0.8.0",
+        "venusian-voyager/collections": "^0.9.0",
+        "venusian-voyager/contracts": "^0.9.0",
+        "venusian-voyager/macroable": "^0.9.0",
+        "venusian-voyager/nuts-and-bolts": "^0.9.0",
         "laravel/prompts": "^0.3.0",
-        "nunomaduro/termwind": "^2.0",
-        "symfony/console": "^7.2.0",
-        "symfony/polyfill-php83": "^1.33",
-        "symfony/process": "^7.2.0"
+        "symfony/console": "^8.0.0",
+        "symfony/process": "^8.0.0",
+        "nunomaduro/termwind": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -31,13 +30,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.8.x-dev"
-        },
-        "venusian": {
-            "upstream": "laravel/framework",
-            "upstream-ref": "v12.67.0",
-            "upstream-path": "src/Illuminate/Console",
-            "ported-at": "2026-08-19"
+            "dev-main": "0.9.x-dev"
         }
     },
     "config": {

@@ -2,121 +2,38 @@
 
 namespace Voyager\Console\View\Components;
 
+use Symfony\Component\Console\Output\OutputInterface;
 use Voyager\Console\OutputStyle;
-use Voyager\Console\QuestionHelper;
-use ReflectionClass;
-use Symfony\Component\Console\Helper\SymfonyQuestionHelper;
 
 use function Termwind\render;
 use function Termwind\renderUsing;
 
+/**
+ * A single piece of console output. Termwind does the drawing; a component only
+ * decides what html to hand it.
+ */
 abstract class Component
 {
-    /**
-     * The output style implementation.
-     *
-     * @var \Voyager\Console\OutputStyle
-     */
-    protected ?\Symfony\Component\Console\Output\OutputInterface $output = null;
+    public function __construct(
+        protected readonly OutputStyle $output,
+    ) {}
 
     /**
-     * The list of mutators to apply on the view data.
-     *
-     * @var array<int, callable(string): string>
+     * Draw $html on this component's output.
      */
-    protected $mutators;
-
-    /**
-     * Creates a new component instance.
-     *
-     * @param  \Voyager\Console\OutputStyle  $output
-     */
-    public function __construct($output)
+    protected function draw(string $html, int $verbosity = OutputInterface::VERBOSITY_NORMAL): void
     {
-        $this->output = $output;
-    }
-
-    /**
-     * Renders the given view.
-     *
-     * @param  string  $view
-     * @param  \Voyager\Contracts\NutsAndBolts\Arrayable|array  $data
-     * @param  int  $verbosity
-     * @return void
-     */
-    protected function renderView($view, $data, $verbosity): void
-    {
+        // termwind renders to whatever it was last pointed at, so aim it every time
         renderUsing($this->output);
 
-        render((string) $this->compile($view, $data), $verbosity);
+        render($html, $verbosity);
     }
 
     /**
-     * Compile the given view contents.
-     *
-     * @param  string  $view
-     * @param  array  $data
-     * @return string
+     * Escape anything a caller hands us: a message holding &, < or > is text, not markup.
      */
-    protected function compile($view, $data): string
+    protected function escape(string $string): string
     {
-        extract($data);
-
-        ob_start();
-
-        include __DIR__."/../../resources/views/components/$view.php";
-
-        return tap(ob_get_contents(), function () {
-            ob_end_clean();
-        });
-    }
-
-    /**
-     * Mutates the given data with the given set of mutators.
-     *
-     * @param  array<int, string>|string  $data
-     * @param  array<int, callable(string): string>  $mutators
-     * @return array<int, string>|string
-     */
-    protected function mutate($data, $mutators)
-    {
-        foreach ($mutators as $mutator) {
-            $mutator = new $mutator;
-
-            if (is_iterable($data)) {
-                foreach ($data as $key => $value) {
-                    $data[$key] = $mutator($value);
-                }
-            } else {
-                $data = $mutator($data);
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * Eventually performs a question using the component's question helper.
-     *
-     * @param  callable  $callable
-     * @return mixed
-     */
-    protected function usingQuestionHelper($callable): mixed
-    {
-        $property = (new ReflectionClass(OutputStyle::class))
-            ->getParentClass()
-            ->getProperty('questionHelper');
-
-        $currentHelper = $property->isInitialized($this->output)
-            ? $property->getValue($this->output)
-            : new SymfonyQuestionHelper();
-
-        $property->setValue($this->output, new QuestionHelper);
-
-        try {
-            return $callable();
-        } finally {
-            $property->setValue($this->output, $currentHelper);
-        }
+        return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }

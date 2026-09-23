@@ -7,14 +7,9 @@ use Symfony\Component\Console\Question\Question;
 class AskWithCompletion extends Component
 {
     /**
-     * Renders the component using the given arguments.
-     *
-     * @param  string  $question
-     * @param  array|callable  $choices
-     * @param  string|null  $default
-     * @return mixed
+     * @param iterable<int, string>|callable(string): array<int, string> $choices
      */
-    public function render($question, $choices, $default = null): mixed
+    public function render(string $question, iterable|callable $choices, ?string $default = null): mixed
     {
         $question = new Question($question, $default);
 
@@ -22,8 +17,6 @@ class AskWithCompletion extends Component
             ? $question->setAutocompleterCallback($choices)
             : $question->setAutocompleterValues($choices);
 
-        return $this->usingQuestionHelper(
-            fn () => $this->output->askQuestion($question)
-        );
+        return $this->output->askQuestion($question);
     }
 }
