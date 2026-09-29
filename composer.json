@@ -13,15 +13,19 @@
     ],
     "require": {
         "php": "^8.4|^8.5",
-        "ext-mbstring": "*",
-        "venusian-voyager/collections": "^0.9.0",
-        "venusian-voyager/contracts": "^0.9.0",
-        "venusian-voyager/macroable": "^0.9.0",
-        "venusian-voyager/nuts-and-bolts": "^0.9.0",
         "laravel/prompts": "^0.3.0",
+        "nesbot/carbon": "^3.8.4",
+        "nunomaduro/termwind": "^2.0",
         "symfony/console": "^8.0.0",
-        "symfony/process": "^8.0.0",
-        "nunomaduro/termwind": "^2.0"
+        "symfony/finder": "^8.0.0",
+        "venusian-voyager/collections": "^0.10.0",
+        "venusian-voyager/contracts": "^0.10.0",
+        "venusian-voyager/filesystem": "^0.10.0",
+        "venusian-voyager/macroable": "^0.10.0",
+        "venusian-voyager/nuts-and-bolts": "^0.10.0"
+    },
+    "suggest": {
+        "ext-pcntl": "Required to trap signals in commands."
     },
     "autoload": {
         "psr-4": {
@@ -30,7 +34,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.9.x-dev"
+            "dev-main": "0.10.x-dev"
         }
     },
     "config": {
