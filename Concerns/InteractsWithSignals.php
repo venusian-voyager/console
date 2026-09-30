@@ -2,7 +2,7 @@
 
 namespace Voyager\Console\Concerns;
 
-use Voyager\Console\Signals;
+use Voyager\Console\ConsoleSignals;
 use Voyager\NutsAndBolts\Collection;
 
 trait InteractsWithSignals
@@ -10,9 +10,9 @@ trait InteractsWithSignals
     /**
      * The signal registrar instance.
      *
-     * @var \Voyager\Console\Signals|null
+     * @var \Voyager\Console\ConsoleSignals|null
      */
-    protected ?Signals $signals = null;
+    protected ?ConsoleSignals $signals = null;
 
     /**
      * Define a callback to be run when the given signal(s) occurs.
@@ -25,8 +25,8 @@ trait InteractsWithSignals
      */
     public function trap($signals, $callback): void
     {
-        Signals::whenAvailable(function () use ($signals, $callback) {
-            $this->signals ??= new Signals(
+        ConsoleSignals::whenAvailable(function () use ($signals, $callback) {
+            $this->signals ??= new ConsoleSignals(
                 $this->getApplication()->getSignalRegistry(),
             );
 
