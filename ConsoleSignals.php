@@ -134,7 +134,7 @@ class ConsoleSignals
      */
     protected function setHandlers(array $handlers): void
     {
-        (fn () => $this->signal_handlers = $handlers)
+        (fn () => $this->signalHandlers = $handlers)
             ->call($this->registry);
     }
 
