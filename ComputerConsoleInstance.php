@@ -42,7 +42,7 @@ class ComputerConsoleInstance extends SymfonyApplication implements ApplicationC
      *
      * @var BufferedOutput|null
      */
-    protected ?BufferedOutput $last_output = null;
+    protected ?OutputInterface $last_output = null;
 
     /**
      * The console application bootstrappers.
