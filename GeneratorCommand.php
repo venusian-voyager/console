@@ -14,6 +14,10 @@ use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @method void addTestOptions() From CreatesMatchingTest; called only when a subclass uses it.
+ * @method bool handleTestCreation(string $path) From CreatesMatchingTest; called only when a subclass uses it.
+ */
 abstract class GeneratorCommand extends Command implements PromptsForMissingInput
 {
     use FindsAvailableModels;

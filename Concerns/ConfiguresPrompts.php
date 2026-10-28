@@ -14,6 +14,8 @@ use Laravel\Prompts\SelectPrompt;
 use Laravel\Prompts\SuggestPrompt;
 use Laravel\Prompts\TextareaPrompt;
 use Laravel\Prompts\TextPrompt;
+use Closure;
+use InvalidArgumentException;
 use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -163,8 +165,6 @@ trait ConfiguresPrompts
     protected function validatePrompt($value, $rules)
     {
         if ($rules instanceof stdClass) {
-            $messages = $rules->messages ?? [];
-            $attributes = $rules->attributes ?? [];
             $rules = $rules->rules ?? null;
         }
 
@@ -172,34 +172,12 @@ trait ConfiguresPrompts
             return;
         }
 
-        $field = 'answer';
-
-        if (is_array($rules) && ! array_is_list($rules)) {
-            [$field, $rules] = [key($rules), current($rules)];
+        if ($rules instanceof Closure) {
+            return $rules($value);
         }
 
-        return $this->getPromptValidatorInstance(
-            $field, $value, $rules, $messages ?? [], $attributes ?? []
-        )->errors()->first();
-    }
-
-    /**
-     * Get the validator instance that should be used to validate prompts.
-     *
-     * @param  mixed  $field
-     * @param  mixed  $value
-     * @param  mixed  $rules
-     * @param  array  $messages
-     * @param  array  $attributes
-     * @return \Voyager\Validation\Validator
-     */
-    protected function getPromptValidatorInstance($field, $value, $rules, array $messages = [], array $attributes = [])
-    {
-        return $this->venusian['validator']->make(
-            [$field => $value],
-            [$field => $rules],
-            empty($messages) ? $this->validationMessages() : $messages,
-            empty($attributes) ? $this->validationAttributes() : $attributes,
+        throw new InvalidArgumentException(
+            'Prompt validation rules need a closure validator in Venusian: there is no validation component to run array or rule-string rules.'
         );
     }
 
